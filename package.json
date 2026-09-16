@@ -24,7 +24,8 @@
     "auth:miraeasset": "tsx src/scripts/auth-miraeasset.ts",
     "auth:nhsec": "tsx src/scripts/auth-nhsec.ts",
     "auth:korsec": "tsx src/scripts/auth-korsec.ts",
-    "auth:kiwoom": "tsx src/scripts/auth-kiwoom.ts"
+    "auth:kiwoom": "tsx src/scripts/auth-kiwoom.ts",
+    "export:holdings": "tsx src/scripts/export-holdings.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
