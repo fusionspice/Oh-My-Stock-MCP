@@ -1,10 +1,9 @@
-import { MiraeAssetBroker } from "../brokers/miraeasset/adapter.js";
 import { SamsungPopBroker } from "../brokers/samsungpop/adapter.js";
 import { loadConfig } from "../config.js";
 import { toExportHolding } from "../lib/holding-export.js";
-import { normalizeMiraeAssetHoldings, normalizeSamsungHoldings } from "../lib/normalize.js";
+import { normalizeSamsungHoldings } from "../lib/normalize.js";
 
-const READ_ONLY_BROKERS = new Set(["samsungpop", "miraeasset"]);
+const READ_ONLY_BROKERS = new Set(["samsungpop"]);
 
 type ExportOptions = {
   brokers: string[];
@@ -12,10 +11,10 @@ type ExportOptions = {
 };
 
 function parseOptions(argv: string[]): ExportOptions {
-  const brokersValue = argv[argv.indexOf("--brokers") + 1] ?? "samsungpop,miraeasset";
+  const brokersValue = argv[argv.indexOf("--brokers") + 1] ?? "samsungpop";
   const brokers = brokersValue.split(",").map((value) => value.trim()).filter(Boolean);
   if (brokers.length === 0 || brokers.some((broker) => !READ_ONLY_BROKERS.has(broker))) {
-    throw new Error("--brokers 는 samsungpop,miraeasset 중 하나 이상이어야 합니다.");
+    throw new Error("--brokers 는 samsungpop 만 지원합니다.");
   }
 
   return {
@@ -34,8 +33,7 @@ async function fetchBrokerHoldings(brokerId: string, headless: boolean) {
     return normalizeSamsungHoldings(snapshot).map(toExportHolding);
   }
 
-  const page = await new MiraeAssetBroker(config).fetchAccountsPage({ headless });
-  return normalizeMiraeAssetHoldings(page).map(toExportHolding);
+  throw new Error(`지원하지 않는 읽기 전용 브로커입니다: ${brokerId}`);
 }
 
 async function main(): Promise<void> {

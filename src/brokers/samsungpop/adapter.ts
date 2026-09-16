@@ -1582,14 +1582,17 @@ export class SamsungPopBroker implements BrokerAdapter {
     const shouldLoadRetirement = accountType.includes("퇴직연금");
     const shouldLoadDomestic = !shouldLoadForeign && !shouldLoadRetirement;
 
-    await page.evaluate(async ({ loadDomestic, loadForeign, loadRetirement }) => {
-      const sleep = (ms: number) =>
-        new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+    await page.evaluate(async function ({ loadDomestic, loadForeign, loadRetirement }) {
+      function sleep(ms: number): Promise<void> {
+        return new Promise<void>(function (resolve) {
+          window.setTimeout(resolve, ms);
+        });
+      }
 
-      const waitUntil = async (
+      async function waitUntil(
         predicate: () => boolean,
         timeoutMs: number = 8_000,
-      ) => {
+      ): Promise<boolean> {
         const startedAt = Date.now();
 
         while (Date.now() - startedAt < timeoutMs) {
@@ -1601,19 +1604,19 @@ export class SamsungPopBroker implements BrokerAdapter {
         }
 
         return false;
-      };
+      }
 
-      const triggerTab = async (tabId: string) => {
+      async function triggerTab(tabId: string): Promise<void> {
         const element = document.querySelector<HTMLAnchorElement>(`#${tabId} > a`);
         element?.click();
         await sleep(300);
-      };
+      }
 
-      const triggerButton = async (selector: string) => {
+      async function triggerButton(selector: string): Promise<void> {
         const button = document.querySelector<HTMLElement>(selector);
         button?.click();
         await sleep(300);
-      };
+      }
 
       const tab6Enabled =
         loadForeign && !document.querySelector("#tab6")?.classList.contains("off");
@@ -1625,11 +1628,12 @@ export class SamsungPopBroker implements BrokerAdapter {
               getAccountBalance06_53_1: (isFirst: boolean) => void;
             }
           ).getAccountBalance06_53_1(true);
-          await waitUntil(
-            () =>
+          await waitUntil(function () {
+            return (
               (document.querySelectorAll("#dataTbl6_2 tbody tr").length ?? 0) > 2 ||
-              document.querySelector("#dataTbl6_2 tbody")?.textContent?.includes("조회 내역이 없습니다.") === true,
-          );
+              document.querySelector("#dataTbl6_2 tbody")?.textContent?.includes("조회 내역이 없습니다.") === true
+            );
+          });
         }
       }
 
@@ -1638,22 +1642,24 @@ export class SamsungPopBroker implements BrokerAdapter {
       if (tab2Enabled) {
         await triggerTab("tab2");
         await triggerButton("#doSearch2");
-        await waitUntil(
-          () =>
+        await waitUntil(function () {
+          return (
             (document.querySelectorAll("#balanceListTb2 tbody tr").length ?? 0) > 2 ||
-            document.querySelector("#balanceListTb2 tbody")?.textContent?.includes("조회 내역이 없습니다.") === true,
-        );
+            document.querySelector("#balanceListTb2 tbody")?.textContent?.includes("조회 내역이 없습니다.") === true
+          );
+        });
       }
 
       const tab10Enabled =
         loadRetirement && !document.querySelector("#tab10")?.classList.contains("off");
       if (tab10Enabled) {
         await triggerTab("tab10");
-        await waitUntil(
-          () =>
+        await waitUntil(function () {
+          return (
             (document.querySelectorAll("#balanceListTb10 tbody tr").length ?? 0) > 2 ||
-            document.querySelector("#balanceListTb10 tbody")?.textContent?.includes("조회 내역이 없습니다.") === true,
-        );
+            document.querySelector("#balanceListTb10 tbody")?.textContent?.includes("조회 내역이 없습니다.") === true
+          );
+        });
       }
     }, {
       loadDomestic: shouldLoadDomestic,

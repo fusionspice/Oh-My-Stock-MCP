@@ -25,7 +25,7 @@
     "auth:nhsec": "tsx src/scripts/auth-nhsec.ts",
     "auth:korsec": "tsx src/scripts/auth-korsec.ts",
     "auth:kiwoom": "tsx src/scripts/auth-kiwoom.ts",
-    "export:holdings": "tsx src/scripts/export-holdings.ts"
+    "export:holdings": "test -f dist/scripts/export-holdings.js || npm run build --silent; node dist/scripts/export-holdings.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",
